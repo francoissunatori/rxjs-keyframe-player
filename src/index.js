@@ -14,15 +14,11 @@ import {
 const Operations = {
   AddItem: (newItem) => (state) => state.concat(newItem),
   RemoveItem: (itemToRemove) => (state) =>
-    state.filter((item) => item !== itemToRemove),
+    state.filter((item, i) => i !== itemToRemove),
   UpdateKeyframeTime: (time) => (state) => time
 };
 
 const addKeyframeTimeAction$ = (event$) =>
-  event$.pipe(
-    map((event) => Operations.UpdateKeyframeTime(Number(event.target.value)))
-  );
-const removeKeyframeTimeAction$ = (event$) =>
   event$.pipe(
     map((event) => Operations.UpdateKeyframeTime(Number(event.target.value)))
   );
@@ -40,12 +36,6 @@ function App() {
       )
     );
 
-    const removeKeyframeTime$ = stateFromAction$(
-      removeKeyframeTimeAction$(
-        event$.pipe(filter((e) => e.target.id === "remove-keyframe"))
-      )
-    );
-
     const addAction$ = (event$) =>
       event$.pipe(
         withLatestFrom(addKeyframeTime$),
@@ -53,10 +43,7 @@ function App() {
       );
 
     const removeAction$ = (event$) =>
-      event$.pipe(
-        withLatestFrom(removeKeyframeTime$),
-        map(([, keyframeTime]) => Operations.RemoveItem(keyframeTime))
-      );
+      event$.pipe(map((e) => Operations.RemoveItem(parseInt(e.target.id))));
 
     const keyframeState$ = stateFromAction$(
       merge(
@@ -85,17 +72,16 @@ function App() {
         <button onClick={onAddRemovePlayClick}>+</button>
       </div>
       <div>
-        <input
-          id="remove-keyframe"
-          type="number"
-          onChange={onAddRemovePlayClick}
-        />
-        <button onClick={onAddRemovePlayClick}>-</button>
-      </div>
-      <div>
         <button onClick={onAddRemovePlayClick}>play</button>
       </div>
-      <h1>{keyframeState.join(" ")}</h1>
+      {keyframeState.map((keyframe, i) => (
+        <>
+          <h1>{keyframe}</h1>
+          <button id={i} key={i} onClick={onAddRemovePlayClick}>
+            -
+          </button>
+        </>
+      ))}
       <h1>{value}</h1>
     </>
   );
