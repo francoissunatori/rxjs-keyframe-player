@@ -18,9 +18,11 @@ const Operations = {
   UpdateKeyframeTime: (time) => (state) => time
 };
 
-const removeAction$ = (event$) =>
-  event$.pipe(map((item) => Operations.RemoveItem(1)));
 const addKeyframeTimeAction$ = (event$) =>
+  event$.pipe(
+    map((event) => Operations.UpdateKeyframeTime(Number(event.target.value)))
+  );
+const removeKeyframeTimeAction$ = (event$) =>
   event$.pipe(
     map((event) => Operations.UpdateKeyframeTime(Number(event.target.value)))
   );
@@ -38,10 +40,22 @@ function App() {
       )
     );
 
+    const removeKeyframeTime$ = stateFromAction$(
+      removeKeyframeTimeAction$(
+        event$.pipe(filter((e) => e.target.id === "remove-keyframe"))
+      )
+    );
+
     const addAction$ = (event$) =>
       event$.pipe(
         withLatestFrom(addKeyframeTime$),
-        map(([event, keyframeTime]) => Operations.AddItem(keyframeTime))
+        map(([, keyframeTime]) => Operations.AddItem(keyframeTime))
+      );
+
+    const removeAction$ = (event$) =>
+      event$.pipe(
+        withLatestFrom(removeKeyframeTime$),
+        map(([, keyframeTime]) => Operations.RemoveItem(keyframeTime))
       );
 
     const keyframeState$ = stateFromAction$(
@@ -62,12 +76,27 @@ function App() {
 
   return (
     <>
-      <h1>{value}</h1>
+      <div>
+        <input
+          id="add-keyframe"
+          type="number"
+          onChange={onAddRemovePlayClick}
+        />
+        <button onClick={onAddRemovePlayClick}>+</button>
+      </div>
+      <div>
+        <input
+          id="remove-keyframe"
+          type="number"
+          onChange={onAddRemovePlayClick}
+        />
+        <button onClick={onAddRemovePlayClick}>-</button>
+      </div>
+      <div>
+        <button onClick={onAddRemovePlayClick}>play</button>
+      </div>
       <h1>{keyframeState.join(" ")}</h1>
-      <input id="add-keyframe" type="number" onChange={onAddRemovePlayClick} />
-      <button onClick={onAddRemovePlayClick}>+</button>
-      <button onClick={onAddRemovePlayClick}>-</button>
-      <button onClick={onAddRemovePlayClick}>play</button>
+      <h1>{value}</h1>
     </>
   );
 }
