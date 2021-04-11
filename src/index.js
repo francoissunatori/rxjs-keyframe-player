@@ -64,7 +64,7 @@ function App() {
     <>
       <h1>{value}</h1>
       <h1>{keyframeState.join(" ")}</h1>
-      <input id="add-keyframe" type="number" onClick={onAddRemovePlayClick} />
+      <input id="add-keyframe" type="number" onChange={onAddRemovePlayClick} />
       <button onClick={onAddRemovePlayClick}>+</button>
       <button onClick={onAddRemovePlayClick}>-</button>
       <button onClick={onAddRemovePlayClick}>play</button>
