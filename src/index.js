@@ -26,6 +26,12 @@ const addKeyframeTimeAction$ = (event$) =>
 const stateFromAction$ = (action$) =>
   action$.pipe(scan((state, action) => action(state), []));
 
+const zerosArrayWithLength = (length) => new Array(length).fill(0);
+const orderedArrayToTimeLine = (orderedArray) => {
+  const zerosArray = zerosArrayWithLength(Math.max(...orderedArray) + 1);
+  return zerosArray.map((_, i) => (orderedArray.includes(i) ? 1 : 0));
+};
+
 function App() {
   const [keyframeState, setKeyframeState] = useState([]);
 
@@ -56,7 +62,11 @@ function App() {
       filter((e) => e.target.innerHTML === "play"),
       withLatestFrom(keyframeState$),
       exhaustMap(([, keyframeState]) =>
-        zip(from(keyframeState), interval(500), (a) => a)
+        zip(
+          from(orderedArrayToTimeLine(keyframeState)),
+          interval(500),
+          (a) => a
+        )
       )
     );
   });
@@ -75,12 +85,12 @@ function App() {
         <button onClick={onAddRemovePlayClick}>play</button>
       </div>
       {keyframeState.map((keyframe, i) => (
-        <>
+        <div key={i}>
           <h1>{keyframe}</h1>
-          <button id={i} key={i} onClick={onAddRemovePlayClick}>
+          <button id={i} onClick={onAddRemovePlayClick}>
             -
           </button>
-        </>
+        </div>
       ))}
       <h1>{value}</h1>
     </>
